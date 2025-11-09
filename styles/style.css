@@ -1,0 +1,723 @@
+/* ============================================= */
+/* --- TURADIO.LAT v2.5 (Fixes Móvil y SEO) --- */
+/* ============================================= */
+
+/* --- 1. VARIABLES Y RESET GLOBAL --- */
+:root {
+    --color-primario: #7B1AFE; /* Violeta */
+    --color-primario-hover: #5A00D1;
+    --color-texto-principal: #FFFFFF;
+    --color-texto-secundario: #b3b3b3;
+    --color-fondo: #121212;
+    --color-tarjeta: #1e1e1e;
+    --color-tarjeta-hover: #282828;
+    --borde-suave: #282828;
+    
+    --fuente-principal: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    
+    --ancho-maximo: 1200px;
+    --sombra-fuerte: 0 6px 20px rgba(0,0,0,0.4);
+    --radio-borde: 8px;
+
+    /* Altura del reproductor */
+    --player-height-minimized: 90px; 
+}
+
+/* --- RESET Y BASE --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: var(--fuente-principal);
+    background-color: var(--color-fondo);
+    color: var(--color-texto-principal);
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Espacio abajo para el reproductor fijo */
+    padding-bottom: var(--player-height-minimized);
+}
+.container { max-width: var(--ancho-maximo); margin: 0 auto; padding: 0 1rem; }
+a { color: var(--color-primario); text-decoration: none; transition: color 0.2s ease; }
+a:hover { color: var(--color-primario-hover); text-decoration: none; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* ============================================= */
+/* --- 2. HEADER Y NAVEGACIÓN (Sin cambios) --- */
+/* ============================================= */
+.main-header {
+    background-color: var(--color-tarjeta);
+    border-bottom: 1px solid var(--borde-suave);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--sombra-fuerte);
+}
+.main-header nav { display: flex; justify-content: space-between; align-items: center; height: 70px; }
+.logo { font-size: 1.8rem; font-weight: 700; color: var(--color-texto-principal); }
+.logo:hover { color: var(--color-primario); }
+.logo .fa-broadcast-tower { color: var(--color-primario); margin-right: 8px; }
+.menu-toggle { display: none; background: none; border: none; color: var(--color-texto-principal); font-size: 1.8rem; cursor: pointer; }
+.nav-links { list-style: none; display: flex; align-items: center; height: 100%; }
+.nav-links > li { position: relative; height: 100%; }
+.nav-links > li > a { display: flex; align-items: center; height: 100%; padding: 0 1.2rem; color: var(--color-texto-secundario); font-weight: 600; font-size: 1rem; border-bottom: 3px solid transparent; transition: color 0.2s, border-bottom 0.2s; }
+.nav-links > li > a:hover, .nav-links > li > a.active { color: var(--color-texto-principal); border-bottom: 3px solid var(--color-primario); }
+.nav-links .dropdown > a .fa-chevron-down { font-size: 0.7rem; margin-left: 5px; }
+.dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background-color: var(--color-tarjeta); border: 1px solid var(--borde-suave); border-radius: 0 0 var(--radio-borde) var(--radio-borde); min-width: 220px; list-style: none; z-index: 101; box-shadow: var(--sombra-fuerte); max-height: 70vh; overflow-y: auto; }
+.nav-links > li:hover .dropdown-menu { display: block; }
+.dropdown-menu a { display: block; padding: 0.75rem 1.25rem; color: var(--color-texto-secundario); font-size: 0.9rem; white-space: nowrap; }
+.dropdown-menu a:hover { background-color: var(--color-fondo); color: var(--color-primario); }
+.mobile-menu { position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background-color: var(--color-tarjeta); box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 1001; transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; overflow-y: auto; }
+.mobile-menu.active { transform: translateX(-300px); }
+.mobile-menu-header { padding: 1rem 1.5rem; display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid var(--borde-suave); }
+.menu-close { background: none; border: none; color: var(--color-texto-principal); font-size: 2.5rem; cursor: pointer; line-height: 1; }
+.mobile-menu-content { padding: 1rem 0; }
+.mobile-menu-content a { display: block; color: var(--color-texto-principal); font-size: 1.1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--borde-suave); font-weight: 500; }
+.mobile-menu-content a:hover { background-color: var(--color-fondo); color: var(--color-primario); }
+.mobile-menu-content hr { border: 0; border-top: 4px solid var(--color-fondo); margin: 0.5rem 0; }
+.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
+.overlay.active { display: block; }
+
+/* ============================================= */
+/* --- 3. CONTENIDO PRINCIPAL --- */
+/* ============================================= */
+.main-content { padding: 2rem 0; }
+.search-form { display: flex; gap: 0.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--borde-suave); max-width: 700px; margin-left: auto; margin-right: auto; }
+.search-form input[type="text"] { flex-grow: 1; padding: 12px 18px; border: 1px solid var(--borde-suave); border-radius: var(--radio-borde); font-size: 1.1rem; transition: border-color 0.2s, box-shadow 0.2s; background-color: var(--color-tarjeta); color: var(--color-texto-principal); }
+.search-form input[type="text"]::placeholder { color: var(--color-texto-secundario); opacity: 0.7; }
+.search-form input[type="text"]:focus { border-color: var(--color-primario); outline: none; box-shadow: 0 0 0 4px rgba(123, 26, 254, 0.2); }
+.search-form button { background-color: var(--color-primario); color: var(--color-texto-principal); border: none; border-radius: var(--radio-borde); cursor: pointer; padding: 12px 18px; font-size: 1.1rem; transition: background-color 0.2s; flex-shrink: 0; }
+.search-form button:hover { background-color: var(--color-primario-hover); }
+#clear-search-button { background-color: var(--color-texto-secundario); color: var(--color-fondo); }
+#clear-search-button:hover { background-color: #8a8a8a; }
+
+/* Contenedor de página (Loader, Estaciones, Info) */
+#page-title { font-size: 2.2rem; font-family: var(--fuente-principal); font-weight: 700; border-bottom: 3px solid var(--color-primario); display: inline-block; padding-bottom: 0.5rem; margin-bottom: 2rem; color: var(--color-texto-principal); }
+#stations-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
+.station-card { 
+    background-color: var(--color-tarjeta); 
+    border-radius: var(--radio-borde); 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: 1.5rem; 
+    text-align: center; 
+    border: 2px solid transparent; 
+    transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s; 
+}
+.station-card:hover { background-color: var(--color-tarjeta-hover); transform: translateY(-5px); }
+.station-card.is-playing {
+    border-color: var(--color-primario); 
+    background-color: #2a164f; 
+}
+
+.station-logo { 
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%; 
+    border: 2px solid var(--borde-suave); 
+    margin-bottom: 1rem; 
+    object-fit: cover; 
+    background-color: #333;
+    display: inline-block; 
+}
+.station-name { font-size: 1.1rem; font-weight: 600; color: var(--color-texto-principal); margin-bottom: 0.25rem; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.station-meta { font-size: 0.85rem; color: var(--color-texto-secundario); margin-bottom: 1rem; }
+.btn-play { 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    background-color: var(--color-primario); 
+    color: var(--color-texto-principal); 
+    border: none; 
+    border-radius: 50px; 
+    padding: 10px 20px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: background-color 0.2s ease; 
+}
+.btn-play:hover { background-color: var(--color-primario-hover); color: var(--color-texto-principal); }
+.btn-play .fa-play { margin-right: 0; } 
+.station-card .station-info-link { display: block; text-decoration: none; color: inherit; text-align: center; }
+.station-card .btn-play span { display: none; } 
+
+.loader-container { text-align: center; padding: 4rem 0; grid-column: 1 / -1; }
+.loader { border: 6px solid var(--color-fondo); border-top: 6px solid var(--color-primario); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.no-stations-message { grid-column: 1 / -1; text-align: center; color: var(--color-texto-secundario); padding: 4rem 0; font-size: 1.1rem; border: 2px dashed var(--borde-suave); border-radius: var(--radio-borde); background: var(--color-tarjeta); }
+
+/* Paginación */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2rem;
+}
+.pagination-btn {
+    background-color: var(--color-tarjeta);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--borde-suave);
+    border-radius: var(--radio-borde);
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.pagination-btn:hover:not(.disabled) {
+    background-color: var(--color-primario-hover);
+}
+.pagination-btn.active {
+    background-color: var(--color-primario);
+    border-color: var(--color-primario);
+}
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Conteo Total */
+#radio-count-info {
+    text-align: center;
+    color: var(--color-texto-secundario);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* --- Estilos de Géneros (Tags) --- */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 1rem;
+}
+.tags-container .tag-btn {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--color-tarjeta);
+    color: var(--color-texto-principal);
+    border: 1px solid var(--borde-suave);
+    border-radius: var(--radio-borde);
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: capitalize;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.tags-container .tag-btn:hover {
+    background-color: var(--color-primario);
+    transform: translateY(-2px);
+    border-color: var(--color-primario);
+}
+.tags-container .tag-btn span {
+    margin-left: 10px;
+    background-color: var(--color-fondo);
+    color: var(--color-texto-secundario);
+    padding: 2px 8px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+
+/* ============================================= */
+/* --- 4. REPRODUCTOR FIJO (Player Bar) --- */
+/* ============================================= */
+#player-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #181818;
+    border-top: 1px solid var(--borde-suave);
+    z-index: 1001;
+    padding: 0 1rem;
+    
+    height: var(--player-height-minimized); 
+    transform: translateY(100%); 
+    transition: transform 0.4s ease-out; 
+}
+
+#player-bar.active {
+    transform: translateY(0); 
+}
+
+.player-content-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Vista Minimizada --- */
+.player-minimized-view {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--player-height-minimized);
+    width: 100%;
+}
+
+.player-info {
+    cursor: pointer; 
+    display: flex;
+    align-items: center;
+    min-width: 150px;
+    flex-shrink: 1;
+    overflow: hidden;
+    padding-right: 10px; 
+}
+.player-info img {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radio-borde);
+    margin-right: 1rem;
+}
+.player-info-text {
+    overflow: hidden;
+}
+.player-info-text h4 {
+    color: var(--color-texto-principal);
+    font-size: 1rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.player-info-text p {
+    color: var(--color-texto-secundario);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-grow: 1;
+    justify-content: center;
+    #audio-player {
+        display: none;
+    }
+}
+
+/* Estilo para el nuevo botón customizado de Play/Pause */
+#play-pause-btn {
+    background-color: var(--color-primario);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    position: relative;
+    /* Para centrar el spinner */
+}
+#play-pause-btn:hover {
+    background-color: var(--color-primario-hover);
+}
+#play-pause-btn .fas {
+    line-height: 0; 
+    transition: opacity 0.2s;
+}
+
+/* Animación de carga en el botón */
+.is-loading .fas {
+    opacity: 0;
+}
+.is-loading::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 60%;
+    margin-top: -30%;
+    margin-left: -30%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--color-texto-principal);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+
+.player-buttons {
+    display: flex;
+    gap: 1rem;
+    padding-left: 1rem;
+    flex-shrink: 0;
+}
+.player-btn {
+    background: none;
+    border: none;
+    color: var(--color-texto-secundario);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.player-btn:hover {
+    color: var(--color-texto-principal);
+}
+
+
+/* ============================================= */
+/* --- 5. PÁGINA DE DETALLE DE RADIO --- */
+/* ============================================= */
+.station-info-page {
+    background-color: var(--color-tarjeta);
+    border-radius: var(--radio-borde);
+    padding: 2rem;
+    margin-top: 2rem;
+    border: 1px solid var(--borde-suave);
+}
+
+.station-info-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--borde-suave);
+    margin-bottom: 1.5rem;
+}
+.station-info-header img {
+    width: 150px;
+    height: 150px;
+    border-radius: var(--radio-borde);
+    border: 2px solid var(--borde-suave);
+    flex-shrink: 0;
+}
+.station-info-header-text {
+    flex-grow: 1;
+}
+.station-info-header-text h1 {
+    font-size: 2.5rem;
+    color: var(--color-texto-principal);
+    margin: 0;
+}
+.station-info-header-text p {
+    font-size: 1.2rem;
+    color: var(--color-texto-secundario);
+    font-weight: 500;
+}
+
+/* Estilo del botón de Play/Pause grande */
+.station-info-header-text .primary-play-btn {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    padding: 12px 25px;
+    min-width: 180px; 
+    position: relative;
+}
+/* Estilos para el spinner de carga en el botón grande */
+.station-info-header-text .primary-play-btn.is-loading {
+    pointer-events: none; /* Deshabilitar clic mientras carga */
+}
+
+
+.station-info-details h3 {
+    color: var(--color-texto-principal);
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--color-primario);
+    padding-left: 10px;
+}
+
+.station-info-details ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.station-info-details li {
+    font-size: 1.05rem;
+    color: var(--color-texto-secundario);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--borde-suave);
+}
+.station-info-details li strong {
+    color: var(--color-texto-principal);
+    margin-right: 10px;
+    min-width: 120px;
+    display: inline-block;
+}
+.station-info-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 1rem;
+}
+.tag-btn {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: var(--color-primario);
+    color: var(--color-texto-principal);
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: capitalize;
+    transition: background-color 0.2s ease;
+}
+.tag-btn:hover {
+    background-color: var(--color-primario-hover);
+    color: var(--color-texto-principal);
+}
+.btn-back-container {
+    margin-top: 2rem;
+}
+.btn-back {
+    display: inline-block;
+    font-weight: 600;
+    color: var(--color-texto-secundario);
+    padding: 10px 15px;
+    background-color: var(--color-tarjeta-hover);
+    border-radius: var(--radio-borde);
+    transition: background-color 0.2s;
+}
+.btn-back:hover {
+    color: var(--color-texto-principal);
+    background-color: #333;
+}
+
+/* --- Recomendaciones --- */
+#stations-container.recommended-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.station-card.small-card {
+    padding: 1rem;
+}
+.station-card.small-card .station-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0.5rem;
+}
+.station-card.small-card .station-name {
+    font-size: 1rem;
+}
+.station-card.small-card .station-meta {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+.station-card.small-card .btn-play {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+.station-card.small-card .btn-play .fa-play {
+    font-size: 1rem;
+}
+
+
+/* ============================================= */
+/* --- 6. FOOTER (Sin cambios) --- */
+/* ============================================= */
+.main-footer {
+    background-color: #0a0a0a;
+    color: #888;
+    margin-top: 3rem;
+    padding-top: 3rem;
+    padding-bottom: 3rem; 
+}
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+}
+.footer-section h3, .footer-section h4 {
+    color: var(--color-texto-principal);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+.footer-section h3 { font-size: 1.5rem; }
+.footer-section p {
+    color: #888;
+    line-height: 1.7;
+}
+.footer-section ul { list-style: none; }
+.footer-section li { margin-bottom: 0.75rem; }
+.footer-section a { color: #888; }
+.footer-section a:hover {
+    color: var(--color-texto-principal);
+    text-decoration: underline;
+}
+.footer-section.social ul {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 1.5rem;
+}
+.footer-bottom {
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 2.5rem;
+    background-color: #000;
+    border-top: 1px solid var(--borde-suave);
+    color: #888;
+    font-size: 0.9rem;
+}
+.footer-bottom a {
+    color: var(--color-texto-principal);
+    font-weight: 600;
+}
+
+/* ============================================= */
+/* --- 7. RESPONSIVE DESIGN (BREAKPOINTS) --- */
+/* ============================================= */
+@media (max-width: 767px) {
+    .container { padding: 0 1rem; }
+    /* Grid más compacto en móvil */
+    #stations-container { 
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+        gap: 1rem; 
+    }
+    .station-logo { width: 90px; height: 90px; }
+    .station-card { padding: 1rem 0.5rem; }
+    .station-name { font-size: 1rem; }
+    .btn-play { padding: 8px 15px; font-size: 0.9rem; }
+    .footer-content { grid-template-columns: 1fr; }
+    
+    /* Reproductor Fijo Móvil - Optimización */
+    .player-minimized-view {
+        flex-wrap: nowrap; /* Aseguramos que no se rompa el layout */
+        padding: 10px 0;
+        height: var(--player-height-minimized);
+    }
+    .player-info {
+        width: 55%; /* Más espacio para la info */
+        min-width: unset;
+        padding-right: 0.5rem;
+    }
+    .player-controls {
+        width: 15%; /* Espacio para el botón de Play/Pause */
+        max-width: unset;
+        justify-content: center;
+        flex-grow: 0;
+    }
+    #play-pause-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    .player-buttons {
+        width: 25%; /* Espacio para el botón de cerrar */
+        justify-content: flex-end;
+        gap: 0;
+        padding-left: 0.5rem;
+    }
+    .player-buttons .player-btn {
+        /* Centrar la X en el espacio asignado */
+        font-size: 1.8rem; 
+        padding: 5px;
+        line-height: 1;
+    }
+    
+    /* Página Detalle en Móvil */
+    .station-info-page { padding: 1.5rem; }
+    .station-info-header { flex-direction: column; text-align: center; gap: 1rem; }
+    .station-info-header img { width: 120px; height: 120px; }
+    .station-info-header-text h1 { font-size: 2rem; }
+    .station-info-header-text p { font-size: 1rem; }
+    .station-info-details li strong { min-width: 90px; } 
+    
+    /* Recomendados en Móvil */
+    #stations-container.recommended-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .nav-links { display: flex; }
+    .menu-toggle { display: none; }
+    .mobile-menu { display: none; }
+    .overlay { display: none !important; }
+}
+
+@media (max-width: 1023px) {
+    .nav-links { display: none; }
+    .menu-toggle { display: block; }
+}
+
+
+
+/* ... (justo después de los estilos de .btn-back:hover) ... */
+
+/* --- ¡NUEVO! Estilos para la Descripción de IA --- */
+.station-info-description {
+    background-color: var(--color-fondo); /* Un fondo ligeramente diferente */
+    border-radius: var(--radio-borde);
+    border: 1px solid var(--borde-suave);
+    padding: 1rem 1.5rem;
+    margin-top: 1rem;
+    
+    /* El truco para colapsar: */
+    max-height: 200px; /* Muestra solo los primeros párrafos */
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.5s ease-in-out;
+}
+
+/* Sombra para indicar que hay más texto */
+.station-info-description::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to bottom, transparent, var(--color-fondo));
+    pointer-events: none; /* Permite hacer clic "a través" de la sombra */
+}
+
+.station-info-description.expanded {
+    max-height: 2000px; /* Altura máxima para expandir */
+}
+
+.station-info-description.expanded::after {
+    display: none; /* Ocultar la sombra cuando está expandido */
+}
+
+/* Párrafos dentro de la descripción */
+.station-info-description p {
+    color: var(--color-texto-secundario);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem; /* Espacio entre párrafos */
+}
+
+/* Botón "Leer más" */
+.toggle-description-btn {
+    margin-top: 1rem;
+    background-color: var(--color-tarjeta-hover);
+    color: var(--color-texto-principal);
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.toggle-description-btn:hover {
+    background-color: #333;
+}
+
+
+
+/* ============================================= */
+/* --- 8. PARCHES DE OVERFLOW Y RESPONSIVE --- */
+/* ============================================= */
+
+/* Asegura que el contenedor principal no se desborde */
+.main-content {
+    overflow-x: hidden;
+}
+
+/* ¡ESTA ES LA SOLUCIÓN A TU BUG DE PAGINACIÓN! 
+  Tu CSS original ya tenía estas reglas,
+  así que al importarlo globalmente, el problema se solucionará.
+*/
+.pagination-container {
+    max-width: 100%;
+    flex-wrap: wrap; /* Esta es la regla más importante */
+    justify-content: center;
+}
