@@ -25,7 +25,7 @@ export default function Layout({ children }) {
         <meta property="og:image" content="https://turadio.lat/images/og-image.png" />
         
         {/* Favicon (lo movimos a /public/images/) */}
-        <link rel="icon" href="/images/favicon.png" type="image/png" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
 
         {/* Google tag (gtag.js) (de tu index.html) */}
         <script 
