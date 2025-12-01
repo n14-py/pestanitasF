@@ -170,7 +170,7 @@ export default function HomePage({ siteConfig, categories, featuredProducts }) {
             {/* 3. Productos Destacados */}
             <section className="featured-products">
                 <h2 className="section-title">Productos Destacados</h2>
-                <p className="section-subtitle">Nuestra selección especial para realzar tu trabajo.</p>
+                <p className="section-subtitle">Nuestra selección especial para realzar tu trabajo..</p>
 
                 <div className="product-grid">
                     {featuredProducts && featuredProducts.length > 0 ? (
