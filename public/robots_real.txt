@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://turadio.lat/sitemap.xml
+Sitemap: https://pestanitas.com/sitemap.xml

@@ -1,313 +1,190 @@
+// pages/index.js
+
 import Layout from '../components/Layout';
-import Head from 'next/head';
+import ProductCard from '../components/ProductCard';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useState } from 'react';
-// ¡Importamos el "cerebro" del reproductor!
-import { usePlayer } from '../context/PlayerContext';
 
-// --- Constantes de tu app.js ---
-const API_URL = 'https://lfaftechapi.onrender.com/api';
-const PLACEHOLDER_LOGO = '/images/placeholder-radio.png';
-const LIMITE_POR_PAGINA = 20;
+// --- FUNCIONES MOCK: Simulación del Backend de Render (SSG) ---
 
-// --- 1. FUNCIÓN (Se ejecuta en el SERVIDOR) ---
-// Usamos getServerSideProps porque esta página maneja MÚLTIPLES
-// tipos de contenido (Populares, País, Género, Búsqueda)
-export async function getServerSideProps(context) {
+/**
+ * Simula la llamada al API de Render para obtener la configuración y productos.
+ * En la vida real, aquí harías un 'fetch' a tu API de Render:
+ * const res = await fetch('https://pestanitas-backend.onrender.com/api/homepage-data');
+ * const data = await res.json();
+ */
+async function fetchHomepageData() {
+    // NOTA: Reemplaza estas imágenes con banners de pestañitas, ubicados en /public
+    const BANNER_URL_BASE = '/images/banners/'; 
     
-    // --- ¡LA LÍNEA MÁGICA PARA EL RENDIMIENTO! ---
-    // Le decimos a Vercel: "Guarda esta página por 60 segundos".
-    // 1000 usuarios = 1 sola llamada a tu API.
-    context.res.setHeader(
-        'Cache-Control',
-        'public, s-maxage=60, stale-while-revalidate=120'
-    );
-    // ---------------------------------------------
-
-    // 1. Obtenemos los parámetros de la URL (ej: ?pais=ar&pagina=2)
-    const { query, pais, genero, pagina: pagina_raw } = context.query;
-    
-    // 2. Limpiamos los parámetros
-    const queryParams = {
-        query: query || null,
-        pais: pais || null,
-        genero: genero || null,
-        pagina: parseInt(pagina_raw) || 1,
+    // Simulación de datos estáticos
+    const mockData = {
+        siteConfig: {
+            // La URL base del backend se definiría en un .env, no lo usaremos aquí
+            whatsappNumber: '5491112345678',
+            bannerImages: [
+                `${BANNER_URL_BASE}banner-1.jpg`, // Debe existir en public/images/banners/
+                `${BANNER_URL_BASE}banner-2.jpg`,
+            ],
+        },
+        categories: [
+            { name: 'Pestañas Clásicas', slug: 'clasicas' },
+            { name: 'Volumen Ruso', slug: 'volumen-ruso' },
+            { name: 'Adhesivos Profesionales', slug: 'adhesivos' },
+            { name: 'Kits de Inicio', slug: 'kits' },
+        ],
+        featuredProducts: [
+            // Simulación de productos. Reemplaza _id y datos con los de tu BD.
+            { _id: 'p1', name: 'Set de Pestañas Clásicas (Mix)', price: 95000, category: { name: 'Pestañas Clásicas' }, photos: ['/images/p1.jpg'], isForRent: false, isForSale: true },
+            { _id: 'p2', name: 'Pinza Curva "Élite"', price: 12000, category: { name: 'Herramientas' }, photos: ['/images/p2.jpg'], isForRent: false, isForSale: true },
+            { _id: 'p3', name: 'Adhesivo Ultra Fuerte 10ml', price: 45000, category: { name: 'Adhesivos' }, photos: ['/images/p3.jpg'], isForRent: false, isForSale: true },
+            { _id: 'p4', name: 'Cepillos Desechables (50u)', price: 5000, category: { name: 'Accesorios' }, photos: ['/images/p4.jpg'], isForRent: false, isForSale: true },
+        ],
     };
 
-    // 3. Construimos la URL de la API (misma lógica que en tu app.js)
-    let url = `${API_URL}/radio/buscar?limite=${LIMITE_POR_PAGINA}&pagina=${queryParams.pagina}`;
-    let tituloPagina = "Radios Populares";
-    
-    if (queryParams.query) {
-        url += `&query=${encodeURIComponent(queryParams.query)}`;
-        tituloPagina = `Resultados para: "${queryParams.query}"`;
-    } else if (queryParams.pais) {
-        url += `&pais=${queryParams.pais}`;
-        tituloPagina = `Radios de ${queryParams.pais}`; // Título temporal
-    } else if (queryParams.genero) {
-        url += `&genero=${encodeURIComponent(queryParams.genero)}`;
-        tituloPagina = `Radios de ${queryParams.genero}`;
-    }
-
-    try {
-        // 4. Llamamos a tu API en Render
-        const res = await fetch(url);
-        if (!res.ok) {
-            throw new Error(`Error de API: ${res.statusText}`);
-        }
-        const data = await res.json(); // { radios, totalRadios, ... }
-        
-        // 5. Refinamos el título si es un país (para obtener el nombre completo)
-        if (queryParams.pais && data.radios.length > 0 && !queryParams.query) {
-            tituloPagina = `Radios de ${data.radios[0].pais}`;
-        }
-        
-        // 6. Devolvemos los datos y los queryParams como "props" a la página
-        return {
-            props: {
-                data,
-                queryParams,
-                tituloPagina, // Pasamos el título ya procesado
-            },
-        };
-    } catch (error) {
-        console.error("Error en getServerSideProps (Index):", error.message);
-        return {
-            props: {
-                data: { radios: [], totalRadios: 0, totalPaginas: 1, paginaActual: 1 },
-                queryParams,
-                tituloPagina,
-                error: "No se pudieron cargar las estaciones. Intente más tarde.",
-            },
-        };
-    }
+    return mockData;
 }
 
 
-// --- 2. COMPONENTE DE LA PÁGINA (Se ejecuta en el NAVEGADOR) ---
-// Recibe los "props" que devolvió getServerSideProps
-export default function Home({ data, queryParams, tituloPagina, error }) {
+// --- LÓGICA DE GENERACIÓN ESTÁTICA (SSG) ---
+export async function getStaticProps() {
+    const data = await fetchHomepageData();
 
-    // --- Lógica del formulario de búsqueda (traída de tu app.js) ---
-    const router = useRouter();
-    const [searchTerm, setSearchTerm] = useState(queryParams.query || '');
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        const query = searchTerm.trim();
-        if (!query) return;
-
-        // Limpiamos los filtros de país/género al buscar
-        const newParams = new URLSearchParams();
-        newParams.set('query', query);
-        newParams.set('pagina', '1');
-        
-        router.push(`/?${newParams.toString()}`);
+    return {
+        props: {
+            siteConfig: data.siteConfig,
+            categories: data.categories,
+            featuredProducts: data.featuredProducts,
+        },
+        // Revalidación Incremental Estática (ISR) - Tu clave para Cloudflare Pages
+        // Esto le dice a Next.js (y a Cloudflare) que re-genere esta página 
+        // cada 60 segundos si recibe una petición, asegurando contenido fresco sin re-deploy.
+        // Cuando tu admin en Render haga un cambio, puedes activar un 'web hook' para 
+        // que CloudflarePages revalide la página instantáneamente.
+        revalidate: 60, 
     };
+}
 
-    const clearSearch = () => {
-        setSearchTerm('');
-        router.push('/'); // Vuelve a la página principal ("Populares")
+
+// --- COMPONENTE DE PÁGINA ---
+export default function HomePage({ siteConfig, categories, featuredProducts }) {
+    
+    // --- Lógica del Carrusel (Adaptación del HTML original) ---
+    const renderCarousel = () => {
+        if (siteConfig.bannerImages && siteConfig.bannerImages.length > 0) {
+            // NOTA: Para que el carrusel funcione realmente, necesitarás el JS de Bootstrap 
+            // cargado en el cliente (que no es la filosofía de SSG pura). 
+            // Lo convertimos a JSX pero la interactividad debe ser añadida aparte (Hydration).
+
+            return (
+                <div id="heroCarousel" className="carousel slide" data-bs-ride="carousel">
+                    
+                    <div className="carousel-indicators">
+                        {siteConfig.bannerImages.map((_, index) => (
+                            <button 
+                                key={index}
+                                type="button" 
+                                data-bs-target="#heroCarousel" 
+                                data-bs-slide-to={index} 
+                                className={index === 0 ? 'active' : ''} 
+                                aria-current={index === 0 ? 'true' : 'false'} 
+                                aria-label={`Slide ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+                    
+                    <div className="carousel-inner">
+                        {siteConfig.bannerImages.map((bannerUrl, index) => {
+                            // Simulación de Cloudinary transform (w_1600,h_900)
+                            const optimizedUrl = bannerUrl; 
+
+                            return (
+                                <div key={index} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
+                                    <div 
+                                        className="hero-slide" 
+                                        style={{ backgroundImage: `url('${optimizedUrl}')` }}
+                                    >
+                                        <div className="hero-content">
+                                            <h1>PESTAÑITAS.COM</h1>
+                                            <p>Realza tu mirada con nuestros productos de alta calidad.</p>
+                                            <Link href="/tienda" className="btn btn-primary btn-accent">Ver Tienda</Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    
+                    <button className="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span className="visually-hidden">Previous</span>
+                    </button>
+                    <button className="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                        <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span className="visually-hidden">Next</span>
+                    </button>
+                </div>
+            );
+        } else {
+            // Fallback (idéntico al de Alethia)
+            return (
+                <section 
+                    className="hero-section hero-section-fallback" 
+                    // NOTA: Reemplaza esta imagen por una de pestañitas.
+                    style={{ backgroundImage: "url('/images/placeholder-banner-pestañas.jpg')" }}
+                >
+                    <div className="hero-content">
+                        <h1>El Arte de la Mirada</h1>
+                        <p>Encuentra piezas únicas que transformarán tu look profesional.</p>
+                        <Link href="/tienda" className="btn btn-primary btn-accent">Ver Tienda</Link>
+                    </div>
+                </section>
+            );
+        }
     };
 
 
     return (
         <Layout>
-            {/* --- 3. SEO Dinámico para esta página --- */}
-            <Head>
-                <title>{tituloPagina} - TuRadio.lat</title>
-                <meta name="description" content={`Escucha ${tituloPagina} en vivo. Las mejores estaciones de radio de Latinoamérica en un solo lugar.`} />
-                <meta property="og:title" content={`${tituloPagina} - TuRadio.lat`} />
-                <meta property="og:description" content={`Escucha ${tituloPagina} en vivo. Las mejores estaciones de radio de Latinoamérica en un solo lugar.`} />
-                {/* La URL canónica la genera Next.js automáticamente */}
-            </Head>
-
-            {/* --- 4. Contenido de la Página (tu index.html) --- */}
+            {/* 1. Carrusel/Hero Section */}
+            {renderCarousel()}
             
-            {/* --- Formulario de Búsqueda --- */}
-            <form id="search-form" className="search-form" onSubmit={handleSearchSubmit}>
-                <input 
-                    type="text" 
-                    id="search-input" 
-                    name="query" 
-                    placeholder="Buscar radios, países o géneros..." 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    required 
-                />
-                <button type="submit" id="search-button"><i className="fas fa-search"></i></button>
-                {queryParams.query && (
-                    <button 
-                        type="button" 
-                        id="clear-search-button" 
-                        onClick={clearSearch}
-                        style={{ display: 'inline-block' }}
-                    >
-                        <i className="fas fa-times"></i>
-                    </button>
-                )}
-            </form>
-            
-            {/* --- Título de Categoría --- */}
-            <h2 id="page-title">{tituloPagina}</h2>
-            
-            {/* --- Contenedor de Estaciones --- */}
-            <div id="page-container">
-                {/* Si hay un error de API */}
-                {error && (
-                    <div className="no-stations-message" style={{ color: 'red' }}>
-                        <p>{error}</p>
+            {/* 2. Categorías Destacadas */}
+            {categories && categories.length > 0 && (
+                <section className="category-highlight-section" style={{ marginBottom: '3rem' }}>
+                    <h2 className="section-title">Nuestras Categorías</h2>
+                    <p className="section-subtitle">Explora nuestras colecciones de productos esenciales.</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+                        {categories.map((cat, index) => (
+                            <Link 
+                                href={`/categoria/${cat.slug || cat.name.toLowerCase().replace(/\s/g, '-')}`} 
+                                key={index} 
+                                className="btn btn-secondary"
+                            >
+                                {cat.name}
+                            </Link>
+                        ))}
                     </div>
-                )}
+                </section>
+            )}
 
-                {/* Si no hay error, pero no hay radios */}
-                {!error && data.radios.length === 0 && (
-                    <div className="no-stations-message">
-                        <p>No se encontraron estaciones para esta selección.</p>
-                    </div>
-                )}
+            {/* 3. Productos Destacados */}
+            <section className="featured-products">
+                <h2 className="section-title">Productos Destacados</h2>
+                <p className="section-subtitle">Nuestra selección especial para realzar tu trabajo.</p>
 
-                {/* Si hay radios, las mostramos */}
-                {!error && data.radios.length > 0 && (
-                    <>
-                        <p id="radio-count-info">
-                            Mostrando {data.radios.length} de {data.totalRadios} {data.totalRadios === 1 ? 'radio' : 'radios'} en total.
-                        </p>
-                        <div id="stations-container">
-                            {data.radios.map(station => (
-                                <StationCard key={station.uuid} station={station} />
-                            ))}
+                <div className="product-grid">
+                    {featuredProducts && featuredProducts.length > 0 ? (
+                        featuredProducts.map(product => (
+                            <ProductCard key={product._id} product={product} />
+                        ))
+                    ) : (
+                        <div className="no-results-card">
+                            <h3>No hay productos destacados</h3>
+                            <p>El administrador aún no ha marcado ningún producto como destacado. Por favor, revisa la Tienda.</p>
                         </div>
-                    </>
-                )}
-            </div>
-        
-            {/* --- Paginación --- */}
-            <Pagination 
-                paginaActual={data.paginaActual} 
-                totalPaginas={data.totalPaginas} 
-                queryParams={queryParams}
-            />
-
+                    )}
+                </div>
+            </section>
         </Layout>
-    );
-}
-
-
-// --- 3. Componentes Ayudantes (para limpiar el código) ---
-
-// --- Componente de Tarjeta de Estación (tu lógica de renderizado de app.js) ---
-function StationCard({ station }) {
-    // Conectamos la tarjeta al "cerebro" del reproductor
-    const { playStation, pauseStation, currentStation, isPlaying } = usePlayer();
-    
-    const logo = station.logo || PLACEHOLDER_LOGO;
-    
-    // Verificamos si ESTA radio es la que está sonando
-    const isThisStationPlaying = currentStation?.uuid === station.uuid && isPlaying;
-
-    const handlePlayClick = () => {
-        if (isThisStationPlaying) {
-            pauseStation();
-        } else {
-            playStation(station);
-        }
-    };
-    
-    // La URL amigable que crearemos en el siguiente paso
-    const stationUrl = `/radio/${station.uuid}`;
-
-    return (
-        <div className={`station-card ${isThisStationPlaying ? 'is-playing' : ''}`}>
-            <Link href={stationUrl} className="station-info-link">
-                <img 
-                    src={logo} 
-                    alt={station.nombre} 
-                    className="station-logo" 
-                    onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_LOGO; }}
-                />
-                <h3 className="station-name" title={station.nombre}>{station.nombre}</h3>
-            </Link>
-            <p className="station-meta">{station.pais}</p>
-            <button 
-                className="btn-play" 
-                onClick={handlePlayClick} 
-                aria-label={`Reproducir ${station.nombre}`}
-            >
-                {/* Mostramos el ícono de Pausa si esta radio está sonando */}
-                {isThisStationPlaying ? (
-                    <i className="fas fa-pause"></i>
-                ) : (
-                    <i className="fas fa-play"></i>
-                )}
-            </button>
-        </div>
-    );
-}
-
-// --- Componente de Paginación (lógica de tu app.js que soluciona el bug de CSS) ---
-function Pagination({ paginaActual, totalPaginas, queryParams }) {
-    if (totalPaginas <= 1) return null;
-
-    // Construimos el query string base
-    const baseParams = new URLSearchParams();
-    if (queryParams.query) baseParams.set('query', queryParams.query);
-    if (queryParams.pais) baseParams.set('pais', queryParams.pais);
-    if (queryParams.genero) baseParams.set('genero', queryParams.genero);
-
-    // Lógica para mostrar solo 5 botones de página
-    const maxPages = 5; 
-    let startPage = Math.max(1, paginaActual - Math.floor(maxPages / 2));
-    let endPage = Math.min(totalPaginas, startPage + maxPages - 1);
-    if (endPage - startPage < maxPages - 1) {
-        startPage = Math.max(1, endPage - maxPages + 1);
-    }
-
-    const pages = [];
-    for (let i = startPage; i <= endPage; i++) {
-        const pageParams = new URLSearchParams(baseParams);
-        pageParams.set('pagina', i);
-        pages.push(
-            <Link 
-                key={i} 
-                href={`/?${pageParams.toString()}`} 
-                className={`pagination-btn ${i === paginaActual ? 'active' : ''}`}
-            >
-                {i}
-            </Link>
-        );
-    }
-    
-    // Botón Anterior
-    const prevParams = new URLSearchParams(baseParams);
-    prevParams.set('pagina', Math.max(1, paginaActual - 1));
-    const prevLink = `/?${prevParams.toString()}`;
-
-    // Botón Siguiente
-    const nextParams = new URLSearchParams(baseParams);
-    nextParams.set('pagina', Math.min(totalPaginas, paginaActual + 1));
-    const nextLink = `/?${nextParams.toString()}`;
-
-    return (
-        // Esta estructura con flex-wrap soluciona tu bug de diseño
-        <div className="pagination-container">
-            <Link 
-                href={prevLink} 
-                className={`pagination-btn ${paginaActual === 1 ? 'disabled' : ''}`}
-            >
-                &laquo; Anterior
-            </Link>
-            
-            {pages}
-            
-             <Link 
-                href={nextLink} 
-                className={`pagination-btn ${paginaActual === totalPaginas ? 'disabled' : ''}`}
-            >
-                Siguiente &raquo;
-            </Link>
-        </div>
     );
 }

@@ -1,54 +1,117 @@
+// pages/contacto.js
+
 import Layout from '../components/Layout';
-import Head from 'next/head';
+import Link from 'next/link';
 
-export default function Contacto() {
-  return (
-    <Layout>
-      <Head>
-        {/* SEO tags para esta página (de tu contacto.html) */}
-        <title>Contacto - Envíanos tus sugerencias o reporta una estación | TuRadio.lat</title>
-        <meta name="description" content="Contáctanos para reportar una radio caída, sugerir una nueva estación de Latinoamérica o consultar sobre publicidad. TuRadio.lat es una plataforma de LFAF Tech." />
-        
-        {/* Metatags OG específicas */}
-        <meta property="og:title" content="Contacto - TuRadio.lat" />
-        <meta property="og:url" content="https://turadio.lat/contacto" />
-        <meta property="og:description" content="Contáctanos para reportar una radio caída, sugerir una nueva estación de Latinoamérica o consultar sobre publicidad." />
+// ===============================================
+// LÓGICA DE DATOS ESTÁTICOS (SSG)
+// ===============================================
 
-        {/* Etiqueta Canónica */}
-        <link rel="canonical" href="https://turadio.lat/contacto" />
-      </Head>
+/**
+ * Simula la obtención de datos de configuración del Backend (Render).
+ */
+async function getSiteConfig() {
+    // En la vida real, se obtendrían estos datos del API de configuración de tu Backend
+    return {
+        whatsappNumber: '5491112345678', // Coloca aquí tu número real
+        email: 'contacto@pestanitas.com', // Coloca aquí tu email
+    };
+}
 
-      {/* Contenido de tu archivo contacto.html original */}
-      <div className="static-page-container">
-          <h1 style={{ color: 'var(--color-primario)', borderBottom: '3px solid var(--color-primario)', paddingBottom: '10px', marginBottom: '1.5rem' }}>Contáctanos</h1>
-          <p>Estamos aquí para ayudarte. Si tienes alguna pregunta, deseas reportar una estación de radio que no funciona, o quieres que agreguemos tu propia radio, usa la información a continuación. TuRadio.lat es un proyecto operado por LFAF Tech.</p>
+// getStaticProps: Genera la página estáticamente
+export async function getStaticProps() {
+    const siteConfig = await getSiteConfig();
+    return {
+        props: {
+            siteConfig,
+        },
+        revalidate: 60 * 60, // Revalida cada hora (ISR)
+    };
+}
 
-          <h2>Formas de Contacto Directo</h2>
-          <p>La vía más rápida y eficiente para comunicarte con nuestro equipo de soporte es a través del correo electrónico:</p>
-          
-          {/* React necesita que 'style' sea un objeto {{...}} */}
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '15px' }}>
-                  <strong style={{ color: 'var(--color-texto-principal)' }}><i className="fas fa-envelope" style={{ marginRight: '10px' }}></i> Correo Electrónico:</strong> <a href="mailto:soporte@lfaftech.com">soporte@lfaftech.com</a>
-              </li>
-              <li style={{ marginBottom: '15px' }}>
-                  <strong style={{ color: 'var(--color-texto-principal)' }}><i className="fas fa-code-branch" style={{ marginRight: '10px' }}></i> Desarrollador:</strong> <a href="https://lfaftech.com" target="_blank" rel="noopener noreferrer">LFAF Tech Oficial</a>
-              </li>
-          </ul>
 
-          <h2>Motivos Comunes de Contacto</h2>
-          
-          <h3>Adición o Sugerencia de una Radio</h3>
-          <p>Si tienes una estación de radio legal y operativa en Latinoamérica que deseas ver listada en nuestra plataforma, envíanos un correo con la siguiente información: Nombre de la Estación, País, Géneros y el Enlace de Streaming (preferiblemente HTTPS).</p>
+// ===============================================
+// COMPONENTE DE LA PÁGINA
+// ===============================================
 
-          <h3>Reportar un Problema o Stream Caído</h3>
-          <p>Si encuentras que una de nuestras radios en vivo está bloqueada, tiene un error de reproducción o el stream se ha caído permanentemente, por favor, notifícanos. Menciona el nombre exacto de la radio y el país para que podamos corregirlo lo antes posible.</p>
+export default function ContactoPage({ siteConfig }) {
+    const { whatsappNumber, email } = siteConfig;
 
-          <h3>Publicidad y Alianzas Comerciales</h3>
-          <p>Para consultas sobre oportunidades de publicidad, patrocinios o alianzas estratégicas con TuRadio.lat o la red de LFAF Tech, comunícate con nosotros por correo. Estamos abiertos a expandir la audiencia de tu negocio en toda la región.</p>
-          
-          <p style={{ marginTop: '2rem', fontStyle: 'italic' }}>Nuestro objetivo es ser el portal de radios más estable y completo de la región. ¡Agradecemos tu colaboración!</p>
-      </div>
-    </Layout>
-  );
+    return (
+        <Layout title="Contacto | Pestañitas.com">
+            
+            {/* Contenedor estático del diseño de Alethia Decora */}
+            <div className="static-page-container">
+                
+                <h1>Contáctanos</h1>
+                <p style={{ textAlign: 'center', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+                    ¿Tienes dudas sobre algún producto o servicio? 
+                    ¡Haz click en cualquiera de los iconos de abajo para comunicarte con nosotros!
+                </p>
+
+                <div className="contact-info" style={{ maxWidth: '600px', margin: '2.5rem auto 0 auto' }}>
+                    
+                    <h3 style={{ textAlign: 'center' }}>Nuestros Canales</h3>
+                    <p style={{ textAlign: 'center' }}>Puedes contactarnos directamente a través de estos canales:</p>
+                    
+                    <ul className="contact-icon-list">
+                        <li>
+                            {/* Usamos la variable obtenida de getStaticProps */}
+                            <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" title="WhatsApp">
+                                <i className="fab fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                            </a>
+                        </li>
+                        <li>
+                            {/* Enlace de ubicación mockeado */}
+                            <a href="https://www.google.com/maps/place/Alethia+Decora/@-25.3777963,-57.4955249,15z/data=!4m6!3m5!1s0x945db3eb620e908f:0x1d3a0d0d60bd3e0a!8m2!3d-25.381065!4d-57.4935355!16s%2Fg%2F11rhh_vj8v?entry=ttu&g_ep=EgoyMDI1MTEwOS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" title="Ubicación">
+                                <i className="fas fa-map-marker-alt"></i>
+                                <span>Ubicación</span>
+                            </a>
+                        </li>
+                        {/* Adaptando enlaces a Pestañitas.com (reemplaza # con tus URLs reales) */}
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="Facebook">
+                                <i className="fab fa-facebook-f"></i>
+                                <span>Facebook</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="Instagram">
+                                <i className="fab fa-instagram"></i>
+                                <span>Instagram</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="TikTok">
+                                <i className="fab fa-tiktok"></i>
+                                <span>TikTok</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="Pinterest">
+                                <i className="fab fa-pinterest-p"></i>
+                                <span>Pinterest</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="YouTube">
+                                <i className="fab fa-youtube"></i>
+                                <span>YouTube</span>
+                            </a>
+                        </li>
+                        <li>
+                            {/* Usamos la variable obtenida de getStaticProps */}
+                            <a href={`mailto:${email}`} title="Email">
+                                <i className="fas fa-envelope"></i>
+                                <span>Email</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+            
+        </Layout>
+    );
 }

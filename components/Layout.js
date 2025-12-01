@@ -1,74 +1,67 @@
+// components/Layout.js
+
 import Head from 'next/head';
 import Header from './Header';
 import Footer from './Footer';
 
-// Este componente envuelve todas las páginas
-// {children} será el contenido de la página (ej: la lista de radios)
-export default function Layout({ children }) {
-  return (
-    <>
-      <Head>
-        {/* Metatags de tu index.html original */}
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        
-        {/* Título y descripción por defecto (las páginas específicas pueden sobreescribirlos) */}
-        <title>TuRadio.lat - Todas las radios de Latinoamérica en un solo lugar</title>
-        <meta name="description" content="Escucha miles de estaciones de radio en vivo de Argentina, México, Colombia, Paraguay, Chile, Perú y todo LATAM. Filtrado por país y género." />
-        
-        {/* Tags de Open Graph (para redes sociales) por defecto */}
-        <meta property="og:title" content="TuRadio.lat - Radios de LATAM en vivo" />
-        <meta property="og:description" content="El portal líder para escuchar radios en vivo de toda Latinoamérica. Sintoniza gratis miles de estaciones." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://turadio.lat" />
-        {/* Apuntamos a la imagen que movimos a /public/images/ */}
-        <meta property="og:image" content="https://turadio.lat/images/og-image.png" />
-        
-        {/* Favicon (lo movimos a /public/images/) */}
-        <link rel="icon" href="/favicon.png" type="image/png" />
+/**
+ * Componente Layout principal. Envuelve todas las páginas.
+ * Añade metadatos globales y la estructura (Header, Main, Footer).
+ * @param {object} props - Propiedades del componente.
+ * @param {React.ReactNode} props.children - El contenido de la página actual.
+ * @param {string} [props.title] - Título específico de la página.
+ * @param {string} [props.description] - Descripción específica de la página para SEO.
+ * @param {string} [props.image] - URL de la imagen para compartir (OpenGraph).
+ */
+const Layout = ({ 
+    children, 
+    title = 'Pestañitas.com | Productos de Belleza y Accesorios Profesionales', 
+    description = 'Descubre las mejores pestañas y accesorios para realzar tu mirada. Envío rápido y calidad garantizada con Pestañitas.', 
+    image = '/images/og-image.png' // Asegúrate de colocar una imagen en public/images
+}) => {
+    return (
+        <>
+            <Head>
+                {/* Metatags SEO/Social Media */}
+                <title>{title}</title>
+                <meta name="description" content={description} />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.png" /> {/* Coloca tu favicon en public/favicon.png */}
+                
+                {/* Open Graph (OG) Metatags */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta property="og:url" content="https://www.pestanitas.com" />
+                {/* La URL de la imagen debe ser absoluta para OG (Next.js la resolverá localmente) */}
+                <meta property="og:image" content={`https://www.pestanitas.com${image}`} />
+                <meta property="og:site_name" content="Pestañitas.com" />
 
-        {/* Google tag (gtag.js) (de tu index.html) */}
-        <script 
-          async 
-          src="https://www.googletagmanager.com/gtag/js?id=G-01KQHC4JWK"
-        ></script>
-        <script
-          // Usamos dangerouslySetInnerHTML para insertar el script que no es un archivo
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-01KQHC4JWK');
-            `,
-          }}
-        />
-        
-        {/* Sitemap (de tu index.html) */}
-        <link rel="sitemap" type="application/xml" title="Sitemap Radios" href="https://lfaftechapi.onrender.com/api/radio/sitemap.xml" />
+                {/* Twitter Card Metatags */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={description} />
+                <meta name="twitter:image" content={`https://www.pestanitas.com${image}`} />
+            </Head>
 
-        {/* AdSense (de preguntas-frecuentes.html) */}
-         <script 
-          async 
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5461370198299696"
-          crossOrigin="anonymous"
-        ></script>
-      </Head>
+            <div id="layout-wrapper">
+                {/* 1. Cabecera */}
+                <Header />
 
-      {/* Aquí se renderiza tu cabecera */}
-      <Header />
+                {/* 2. Contenido Principal */}
+                <main className="main-content">
+                    {/* El contenido de la página se inserta aquí. 
+                        Nota: el CSS de Alethia usa un contenedor dentro del body para centrar el contenido. */}
+                    <div className="container">
+                        {children}
+                    </div>
+                </main>
 
-      {/* Aquí se renderiza el contenido de la página */}
-      <main className="container">
-          <div className="main-content">
-            {children}
-          </div>
-      </main>
+                {/* 3. Pie de Página */}
+                <Footer />
+            </div>
+        </>
+    );
+};
 
-      {/* Aquí se renderiza tu pie de página */}
-      <Footer />
-      
-      {/* El reproductor de audio lo añadiremos en el siguiente paso de una forma especial */}
-    </>
-  );
-}
+export default Layout;
