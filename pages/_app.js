@@ -1,6 +1,7 @@
 // pages/_app.js
 
-import '../public/css/style.css'; // Importa los estilos globales modificados de Pestañitas
+// CORRECCIÓN: Ahora importa desde la carpeta 'styles' en la raíz del proyecto.
+import '../styles/style.css'; 
 import Head from 'next/head';
 
 /**
