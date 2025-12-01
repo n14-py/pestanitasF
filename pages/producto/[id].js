@@ -7,7 +7,7 @@ import Layout from '../../components/Layout';
 import ProductCard from '../../components/ProductCard';
 
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 // ===============================================
 // MOCK DATA Y LÓGICA DE SERVIDOR (SSG)
 // ===============================================
