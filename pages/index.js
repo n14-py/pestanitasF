@@ -4,6 +4,8 @@ import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import Link from 'next/link';
 
+export const runtime = 'edge';
+
 // --- FUNCIONES MOCK: Simulación del Backend de Render (SSG) ---
 
 /**

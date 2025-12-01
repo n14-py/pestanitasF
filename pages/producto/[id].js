@@ -6,6 +6,8 @@ import Image from 'next/image'; // Para la optimización de imágenes (opcional 
 import Layout from '../../components/Layout';
 import ProductCard from '../../components/ProductCard';
 
+
+export const runtime = 'edge';
 // ===============================================
 // MOCK DATA Y LÓGICA DE SERVIDOR (SSG)
 // ===============================================
